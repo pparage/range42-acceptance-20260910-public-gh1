@@ -1,0 +1,91 @@
+{
+  "ui_project": {
+    "version": 1,
+    "project_id": "reopen-github-bab06cd41a",
+    "generated_paths": [
+      "scenarios/saved/manifest/scenario_networks.json",
+      "scenarios/saved/manifest/scenario_vms.json",
+      "scenarios/saved/hosts.yml",
+      "scenarios/saved/00_networks.yml",
+      "scenarios/saved/01_vm_bootstrap.yml",
+      "scenarios/saved/configure.yml",
+      "scenarios/saved/main.yml",
+      "scenarios/saved/teardown.yml"
+    ],
+    "variables": [
+      {
+        "name": "PORT",
+        "default": 8080
+      },
+      {
+        "name": "VAULT_VALUE",
+        "secret": true,
+        "required": true
+      }
+    ],
+    "scenario": {
+      "label": "saved",
+      "network_mode": "sdn",
+      "zone": "r42saved",
+      "networks": [
+        {
+          "id": "net1",
+          "vnet": "saved1",
+          "subnet": "10.42.7.0/24",
+          "gateway": "10.42.7.1",
+          "snat": true
+        }
+      ],
+      "vms": [
+        {
+          "node_id": "vm1",
+          "vm_id": 3101,
+          "vm_name": "saved-vm",
+          "template_vm_id": 9901,
+          "network_id": "net1",
+          "ip": "10.42.7.10",
+          "ssh_user": "alice",
+          "cores": 2,
+          "memory_mb": 2048,
+          "nics": [
+            {
+              "network_id": "net1",
+              "ip": "10.42.7.10"
+            }
+          ]
+        }
+      ],
+      "content": [
+        {
+          "id": "asset",
+          "kind": "file",
+          "target_node": "vm1",
+          "path": "content/logo.bin",
+          "destination": "/tmp/logo.bin",
+          "mode": "0644"
+        }
+      ]
+    }
+  },
+  "name": "Saved scenario",
+  "bridge_base": 140,
+  "ui_files": [
+    "scenarios/saved/content/logo.bin",
+    "notes.txt",
+    "scenarios/saved/manifest/scenario_networks.json",
+    "scenarios/saved/manifest/scenario_vms.json",
+    "scenarios/saved/hosts.yml",
+    "scenarios/saved/00_networks.yml",
+    "scenarios/saved/01_vm_bootstrap.yml",
+    "scenarios/saved/configure.yml",
+    "scenarios/saved/main.yml",
+    "scenarios/saved/teardown.yml"
+  ],
+  "ui_binary_files": {
+    "scenarios/saved/content/logo.bin": {
+      "encoding": "base64",
+      "size": 4,
+      "media_type": "application/octet-stream"
+    }
+  }
+}

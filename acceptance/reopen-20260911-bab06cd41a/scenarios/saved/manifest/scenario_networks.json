@@ -1,0 +1,12 @@
+{
+  "mode": "sdn",
+  "zone": "r42saved",
+  "vnets": [
+    {
+      "vnet": "saved1",
+      "subnet": "10.42.7.0/24",
+      "gateway": "10.42.7.1",
+      "snat": true
+    }
+  ]
+}

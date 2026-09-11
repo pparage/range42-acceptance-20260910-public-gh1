@@ -1,0 +1,16 @@
+- name: "file: content/logo.bin"
+  hosts: saved-vm
+  gather_facts: false
+  become: true
+  vars_files:
+    - "{{ lookup('env', 'RANGE42_ACTIVE_CONFIG_DIR') }}/secrets/default_vault.yml"
+  vars:
+    PORT: 8443
+    global_vm_ssh_name: saved-vm
+    global_vm_ci_ip: 10.42.7.10
+  tasks:
+    - name: Copy content/logo.bin
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/content/logo.bin"
+        dest: /tmp/logo.bin
+        mode: "0644"
