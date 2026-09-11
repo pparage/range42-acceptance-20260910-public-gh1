@@ -1,0 +1,30 @@
+{
+  "scenario": "saved",
+  "version": 3,
+  "vms": [
+    {
+      "vm_id": 3101,
+      "vm_name": "saved-vm",
+      "ip": "10.42.7.10",
+      "role": "vm",
+      "bridge": "saved1",
+      "template_vm_id": 9901,
+      "nics": [
+        {
+          "index": 0,
+          "ip": "10.42.7.10",
+          "bridge": "saved1",
+          "prefix": 24,
+          "gateway": "10.42.7.1"
+        }
+      ],
+      "cores": 2,
+      "memory_mb": 2048
+    }
+  ],
+  "templates": [
+    {
+      "vm_id": 9901
+    }
+  ]
+}

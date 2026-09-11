@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "kind": "lab",
+  "name": "Saved scenario",
+  "naming_prefix": "saved-scenario",
+  "bridge_base": 140,
+  "nodes": [
+    {
+      "id": "vm1",
+      "kind": "vm",
+      "role": "admin",
+      "template_vmid": 9901,
+      "networks": [
+        {
+          "node_ref": "net1",
+          "dhcp": true
+        }
+      ]
+    },
+    {
+      "id": "net1",
+      "kind": "network"
+    }
+  ]
+}

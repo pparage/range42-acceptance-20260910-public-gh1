@@ -1,0 +1,8 @@
+- ansible.builtin.import_playbook: "{{ lookup('env', 'RANGE42_BUNDLE_DIR') }}/proxmox/sdn_network.bootstrap/main.yml"
+  vars:
+    BUNDLE_SDN_ZONE: r42saved
+    BUNDLE_SDN_VNETS:
+      - vnet: saved1
+        subnet: 10.42.7.0/24
+        gateway: 10.42.7.1
+        snat: true
