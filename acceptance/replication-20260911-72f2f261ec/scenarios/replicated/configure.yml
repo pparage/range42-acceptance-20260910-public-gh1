@@ -1,0 +1,96 @@
+- name: "file: content/example.txt"
+  hosts: workstation-8d4b18f26b61
+  gather_facts: false
+  become: true
+  vars_files:
+    - "{{ lookup('env', 'RANGE42_ACTIVE_CONFIG_DIR') }}/secrets/default_vault.yml"
+  vars:
+    PORT: 8443
+    global_vm_ssh_name: workstation-8d4b18f26b61
+    global_vm_ci_ip: 10.42.10.11
+  tasks:
+    - name: Copy content/example.txt
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/content/example.txt"
+        dest: /tmp/example.txt
+        mode: "0644"
+- name: "file: content/example.txt"
+  hosts: workstation-f41ec66e19c3
+  gather_facts: false
+  become: true
+  vars_files:
+    - "{{ lookup('env', 'RANGE42_ACTIVE_CONFIG_DIR') }}/secrets/default_vault.yml"
+  vars:
+    PORT: 8443
+    global_vm_ssh_name: workstation-f41ec66e19c3
+    global_vm_ci_ip: 10.42.10.12
+  tasks:
+    - name: Copy content/example.txt
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/content/example.txt"
+        dest: /tmp/example.txt
+        mode: "0644"
+- name: "file: content/example.txt"
+  hosts: workstation-982df81e340f
+  gather_facts: false
+  become: true
+  vars_files:
+    - "{{ lookup('env', 'RANGE42_ACTIVE_CONFIG_DIR') }}/secrets/default_vault.yml"
+  vars:
+    PORT: 8443
+    global_vm_ssh_name: workstation-982df81e340f
+    global_vm_ci_ip: 10.42.11.11
+  tasks:
+    - name: Copy content/example.txt
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/content/example.txt"
+        dest: /tmp/example.txt
+        mode: "0644"
+- name: "file: content/logo.bin"
+  hosts: workstation-8d4b18f26b61
+  gather_facts: false
+  become: true
+  vars_files:
+    - "{{ lookup('env', 'RANGE42_ACTIVE_CONFIG_DIR') }}/secrets/default_vault.yml"
+  vars:
+    PORT: 8443
+    global_vm_ssh_name: workstation-8d4b18f26b61
+    global_vm_ci_ip: 10.42.10.11
+  tasks:
+    - name: Copy content/logo.bin
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/content/logo.bin"
+        dest: /tmp/logo.bin
+        mode: "0644"
+- name: "file: content/logo.bin"
+  hosts: workstation-f41ec66e19c3
+  gather_facts: false
+  become: true
+  vars_files:
+    - "{{ lookup('env', 'RANGE42_ACTIVE_CONFIG_DIR') }}/secrets/default_vault.yml"
+  vars:
+    PORT: 8443
+    global_vm_ssh_name: workstation-f41ec66e19c3
+    global_vm_ci_ip: 10.42.10.12
+  tasks:
+    - name: Copy content/logo.bin
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/content/logo.bin"
+        dest: /tmp/logo.bin
+        mode: "0644"
+- name: "file: content/logo.bin"
+  hosts: workstation-982df81e340f
+  gather_facts: false
+  become: true
+  vars_files:
+    - "{{ lookup('env', 'RANGE42_ACTIVE_CONFIG_DIR') }}/secrets/default_vault.yml"
+  vars:
+    PORT: 8443
+    global_vm_ssh_name: workstation-982df81e340f
+    global_vm_ci_ip: 10.42.11.11
+  tasks:
+    - name: Copy content/logo.bin
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/content/logo.bin"
+        dest: /tmp/logo.bin
+        mode: "0644"

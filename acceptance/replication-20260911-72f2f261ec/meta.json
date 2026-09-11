@@ -1,0 +1,178 @@
+{
+  "ui_project": {
+    "version": 1,
+    "project_id": "replication-github-72f2f261ec",
+    "generated_paths": [
+      "scenarios/replicated/manifest/scenario_networks.json",
+      "scenarios/replicated/manifest/scenario_instances.json",
+      "scenarios/replicated/manifest/scenario_vms.json",
+      "scenarios/replicated/hosts.yml",
+      "scenarios/replicated/00_networks.yml",
+      "scenarios/replicated/01_vm_bootstrap.yml",
+      "scenarios/replicated/configure.yml",
+      "scenarios/replicated/main.yml",
+      "scenarios/replicated/teardown.yml"
+    ],
+    "variables": [
+      {
+        "name": "PORT",
+        "default": 8080
+      },
+      {
+        "name": "VAULT_VALUE",
+        "secret": true,
+        "required": true
+      }
+    ],
+    "scenario": {
+      "label": "replicated",
+      "network_mode": "sdn",
+      "zone": "r42repl",
+      "replication": {
+        "version": 1,
+        "scenario_id": "course-1",
+        "teams": [
+          {
+            "id": "blue",
+            "label": "Blue cohort",
+            "users": [
+              {
+                "id": "bob"
+              },
+              {
+                "id": "alice"
+              }
+            ]
+          },
+          {
+            "id": "red",
+            "label": "Red cohort",
+            "users": [
+              {
+                "id": "eve"
+              }
+            ]
+          }
+        ],
+        "node_scopes": {
+          "vm1": "per_user"
+        },
+        "network_scopes": {
+          "net1": "per_team"
+        },
+        "vm_assignments": {
+          "vm-8d4b18f26b612fea797435babb91a24250604133337208f03ba0676010614fa9": {
+            "vm_id": 3101,
+            "nics": {
+              "nic-primary": {
+                "ip": "10.42.10.11"
+              }
+            }
+          },
+          "vm-f41ec66e19c3ff98d405c9a5683580cb528da98803a90a8d0dffdd463041bfea": {
+            "vm_id": 3102,
+            "nics": {
+              "nic-primary": {
+                "ip": "10.42.10.12"
+              }
+            }
+          },
+          "vm-982df81e340fe3001970c3c59599b34c5c43dd529f6d6f4ed4a3ebeeb4084a24": {
+            "vm_id": 3103,
+            "nics": {
+              "nic-primary": {
+                "ip": "10.42.11.11"
+              }
+            }
+          }
+        },
+        "network_assignments": {
+          "net-51be5051728d3ed43564a8abf8e07a11db1820c4d245d1c465008bc560f205cd": {
+            "vnet": "blue1",
+            "subnet": "10.42.10.0/24",
+            "gateway": "10.42.10.1",
+            "snat": false,
+            "reserved_ips": [
+              "10.42.10.50"
+            ]
+          },
+          "net-c2d15c526933f8d2c9370b2f3ae33a349e33397b2d22e0466cc506cefcd0ed12": {
+            "vnet": "red1",
+            "subnet": "10.42.11.0/24",
+            "gateway": "10.42.11.1",
+            "snat": true,
+            "reserved_ips": [
+              "10.42.11.50"
+            ]
+          }
+        }
+      },
+      "networks": [
+        {
+          "id": "net1",
+          "vnet": "source1",
+          "subnet": "10.42.9.0/24",
+          "gateway": "10.42.9.1",
+          "snat": false
+        }
+      ],
+      "vms": [
+        {
+          "node_id": "vm1",
+          "vm_name": "workstation",
+          "vm_id": 3100,
+          "template_vm_id": 9901,
+          "ssh_user": "alice",
+          "primary_nic_key": "nic-primary",
+          "nics": [
+            {
+              "key": "nic-primary",
+              "network_id": "net1",
+              "ip": "10.42.9.10"
+            }
+          ]
+        }
+      ],
+      "content": [
+        {
+          "id": "copy",
+          "kind": "file",
+          "target_node": "vm1",
+          "path": "content/example.txt",
+          "destination": "/tmp/example.txt"
+        },
+        {
+          "id": "binary",
+          "kind": "file",
+          "target_node": "vm1",
+          "path": "content/logo.bin",
+          "destination": "/tmp/logo.bin",
+          "mode": "0644"
+        }
+      ]
+    }
+  },
+  "name": "Saved scenario",
+  "bridge_base": 140,
+  "ui_files": [
+    "scenarios/replicated/content/example.txt",
+    "scenarios/replicated/content/logo.bin",
+    "notes.txt",
+    "scenarios/replicated/manifest/scenario_networks.json",
+    "scenarios/replicated/manifest/scenario_instances.json",
+    "scenarios/replicated/manifest/scenario_vms.json",
+    "scenarios/replicated/hosts.yml",
+    "scenarios/replicated/00_networks.yml",
+    "scenarios/replicated/01_vm_bootstrap.yml",
+    "scenarios/replicated/configure.yml",
+    "scenarios/replicated/main.yml",
+    "scenarios/replicated/teardown.yml"
+  ],
+  "ui_binary_files": {
+    "scenarios/replicated/content/logo.bin": {
+      "encoding": "base64",
+      "size": 4,
+      "media_type": "application/octet-stream"
+    }
+  }
+}
