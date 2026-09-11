@@ -1,0 +1,3 @@
+- ansible.builtin.import_playbook: 00_networks.yml
+- ansible.builtin.import_playbook: 01_vm_bootstrap.yml
+- ansible.builtin.import_playbook: configure.yml

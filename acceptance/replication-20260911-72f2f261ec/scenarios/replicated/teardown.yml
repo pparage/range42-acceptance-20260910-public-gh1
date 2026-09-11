@@ -1,0 +1,280 @@
+- name: Remove only VMs owned by this deployment
+  hosts: proxmox
+  gather_facts: false
+  vars_files:
+    - "{{ lookup('env', 'RANGE42_ACTIVE_CONFIG_DIR') }}/secrets/default_vault.yml"
+  tasks:
+    - name: Find remaining VM resources
+      ansible.builtin.uri:
+        url: https://{{ proxmox_api_host }}/api2/json/cluster/resources?type=vm
+        method: GET
+        headers:
+          Authorization: PVEAPIToken={{ proxmox_api_user }}!{{ proxmox_api_token_id }}={{ proxmox_api_token_secret }}
+        validate_certs: "{{ proxmox_api_validate_certs | default(true) }}"
+      register: r42_teardown_resources
+      no_log: true
+      changed_when: false
+    - name: Remove workstation-8d4b18f26b61 (3101) if it still exists
+      when: r42_teardown_resources.json.data | selectattr('vmid', 'equalto', 3101) | list | length > 0
+      block:
+        - name: Verify resource type and node
+          ansible.builtin.assert:
+            that:
+              - (r42_teardown_resources.json.data | selectattr('vmid', 'equalto', 3101) | first).type == 'qemu'
+              - (r42_teardown_resources.json.data | selectattr('vmid', 'equalto', 3101) | first).node == proxmox_node
+            fail_msg: VM type or node no longer matches this deployment; refusing removal
+        - name: Read VM ownership before any mutation
+          ansible.builtin.uri:
+            url: https://{{ proxmox_api_host }}/api2/json/nodes/{{ proxmox_node }}/qemu/3101/config
+            method: GET
+            headers:
+              Authorization: PVEAPIToken={{ proxmox_api_user }}!{{ proxmox_api_token_id }}={{ proxmox_api_token_secret }}
+            validate_certs: "{{ proxmox_api_validate_certs | default(true) }}"
+          register: r42_teardown_config
+          no_log: true
+          changed_when: false
+        - name: Verify exact deployment ownership
+          ansible.builtin.assert:
+            that:
+              - r42_deployment_id | default('') | length > 0
+              - r42_teardown_config.json.data.name | default('') == 'workstation-8d4b18f26b61'
+              - r42_teardown_config.json.data.template | default(0) | int == 0
+              - ('range42-deployment:' ~ r42_deployment_id) in (r42_teardown_config.json.data.description | default('')).splitlines()
+            fail_msg: VM ownership does not match this deployment; refusing shutdown and removal
+        - name: Read current VM status
+          ansible.builtin.uri:
+            url: https://{{ proxmox_api_host }}/api2/json/nodes/{{ proxmox_node }}/qemu/3101/status/current
+            method: GET
+            headers:
+              Authorization: PVEAPIToken={{ proxmox_api_user }}!{{ proxmox_api_token_id }}={{ proxmox_api_token_secret }}
+            validate_certs: "{{ proxmox_api_validate_certs | default(true) }}"
+          register: r42_teardown_status
+          no_log: true
+          changed_when: false
+        - name: Request graceful VM shutdown
+          ansible.builtin.include_role:
+            name: range42-ansible_roles-proxmox_controller
+          vars:
+            proxmox_vm_action: vm_stop
+            vm_id: 3101
+            vm_name: workstation-8d4b18f26b61
+          when: r42_teardown_status.json.data.status != 'stopped'
+        - name: Wait until VM shutdown completes
+          ansible.builtin.uri:
+            url: https://{{ proxmox_api_host }}/api2/json/nodes/{{ proxmox_node }}/qemu/3101/status/current
+            method: GET
+            headers:
+              Authorization: PVEAPIToken={{ proxmox_api_user }}!{{ proxmox_api_token_id }}={{ proxmox_api_token_secret }}
+            validate_certs: "{{ proxmox_api_validate_certs | default(true) }}"
+          register: r42_teardown_stopped
+          no_log: true
+          changed_when: false
+          until: r42_teardown_stopped.json.data.status | default('') == 'stopped'
+          retries: 60
+          delay: 2
+        - name: Remove stopped deployment VM
+          ansible.builtin.include_role:
+            name: range42-ansible_roles-proxmox_controller
+          vars:
+            proxmox_vm_action: vm_delete
+            vm_id: 3101
+            vm_name: workstation-8d4b18f26b61
+        - name: Verify deletion started
+          ansible.builtin.assert:
+            that:
+              - (vm_delete.raw_data.data | default('')).startswith('UPID:')
+            fail_msg: VM removal did not return a task identifier
+        - name: Wait for the VM deletion task
+          ansible.builtin.uri:
+            url: https://{{ proxmox_api_host }}/api2/json/nodes/{{ vm_delete.raw_data.data.split(':')[1] }}/tasks/{{ vm_delete.raw_data.data }}/status
+            method: GET
+            headers:
+              Authorization: PVEAPIToken={{ proxmox_api_user }}!{{ proxmox_api_token_id }}={{ proxmox_api_token_secret }}
+            validate_certs: "{{ proxmox_api_validate_certs | default(true) }}"
+          register: r42_teardown_deleted
+          no_log: true
+          changed_when: false
+          until: r42_teardown_deleted.json.data.status | default('') == 'stopped'
+          retries: 60
+          delay: 2
+        - name: Verify VM deletion succeeded
+          ansible.builtin.assert:
+            that:
+              - r42_teardown_deleted.json.data.exitstatus | default('') == 'OK'
+            fail_msg: VM removal task failed; inspect its Proxmox task log before retrying
+    - name: Remove workstation-f41ec66e19c3 (3102) if it still exists
+      when: r42_teardown_resources.json.data | selectattr('vmid', 'equalto', 3102) | list | length > 0
+      block:
+        - name: Verify resource type and node
+          ansible.builtin.assert:
+            that:
+              - (r42_teardown_resources.json.data | selectattr('vmid', 'equalto', 3102) | first).type == 'qemu'
+              - (r42_teardown_resources.json.data | selectattr('vmid', 'equalto', 3102) | first).node == proxmox_node
+            fail_msg: VM type or node no longer matches this deployment; refusing removal
+        - name: Read VM ownership before any mutation
+          ansible.builtin.uri:
+            url: https://{{ proxmox_api_host }}/api2/json/nodes/{{ proxmox_node }}/qemu/3102/config
+            method: GET
+            headers:
+              Authorization: PVEAPIToken={{ proxmox_api_user }}!{{ proxmox_api_token_id }}={{ proxmox_api_token_secret }}
+            validate_certs: "{{ proxmox_api_validate_certs | default(true) }}"
+          register: r42_teardown_config
+          no_log: true
+          changed_when: false
+        - name: Verify exact deployment ownership
+          ansible.builtin.assert:
+            that:
+              - r42_deployment_id | default('') | length > 0
+              - r42_teardown_config.json.data.name | default('') == 'workstation-f41ec66e19c3'
+              - r42_teardown_config.json.data.template | default(0) | int == 0
+              - ('range42-deployment:' ~ r42_deployment_id) in (r42_teardown_config.json.data.description | default('')).splitlines()
+            fail_msg: VM ownership does not match this deployment; refusing shutdown and removal
+        - name: Read current VM status
+          ansible.builtin.uri:
+            url: https://{{ proxmox_api_host }}/api2/json/nodes/{{ proxmox_node }}/qemu/3102/status/current
+            method: GET
+            headers:
+              Authorization: PVEAPIToken={{ proxmox_api_user }}!{{ proxmox_api_token_id }}={{ proxmox_api_token_secret }}
+            validate_certs: "{{ proxmox_api_validate_certs | default(true) }}"
+          register: r42_teardown_status
+          no_log: true
+          changed_when: false
+        - name: Request graceful VM shutdown
+          ansible.builtin.include_role:
+            name: range42-ansible_roles-proxmox_controller
+          vars:
+            proxmox_vm_action: vm_stop
+            vm_id: 3102
+            vm_name: workstation-f41ec66e19c3
+          when: r42_teardown_status.json.data.status != 'stopped'
+        - name: Wait until VM shutdown completes
+          ansible.builtin.uri:
+            url: https://{{ proxmox_api_host }}/api2/json/nodes/{{ proxmox_node }}/qemu/3102/status/current
+            method: GET
+            headers:
+              Authorization: PVEAPIToken={{ proxmox_api_user }}!{{ proxmox_api_token_id }}={{ proxmox_api_token_secret }}
+            validate_certs: "{{ proxmox_api_validate_certs | default(true) }}"
+          register: r42_teardown_stopped
+          no_log: true
+          changed_when: false
+          until: r42_teardown_stopped.json.data.status | default('') == 'stopped'
+          retries: 60
+          delay: 2
+        - name: Remove stopped deployment VM
+          ansible.builtin.include_role:
+            name: range42-ansible_roles-proxmox_controller
+          vars:
+            proxmox_vm_action: vm_delete
+            vm_id: 3102
+            vm_name: workstation-f41ec66e19c3
+        - name: Verify deletion started
+          ansible.builtin.assert:
+            that:
+              - (vm_delete.raw_data.data | default('')).startswith('UPID:')
+            fail_msg: VM removal did not return a task identifier
+        - name: Wait for the VM deletion task
+          ansible.builtin.uri:
+            url: https://{{ proxmox_api_host }}/api2/json/nodes/{{ vm_delete.raw_data.data.split(':')[1] }}/tasks/{{ vm_delete.raw_data.data }}/status
+            method: GET
+            headers:
+              Authorization: PVEAPIToken={{ proxmox_api_user }}!{{ proxmox_api_token_id }}={{ proxmox_api_token_secret }}
+            validate_certs: "{{ proxmox_api_validate_certs | default(true) }}"
+          register: r42_teardown_deleted
+          no_log: true
+          changed_when: false
+          until: r42_teardown_deleted.json.data.status | default('') == 'stopped'
+          retries: 60
+          delay: 2
+        - name: Verify VM deletion succeeded
+          ansible.builtin.assert:
+            that:
+              - r42_teardown_deleted.json.data.exitstatus | default('') == 'OK'
+            fail_msg: VM removal task failed; inspect its Proxmox task log before retrying
+    - name: Remove workstation-982df81e340f (3103) if it still exists
+      when: r42_teardown_resources.json.data | selectattr('vmid', 'equalto', 3103) | list | length > 0
+      block:
+        - name: Verify resource type and node
+          ansible.builtin.assert:
+            that:
+              - (r42_teardown_resources.json.data | selectattr('vmid', 'equalto', 3103) | first).type == 'qemu'
+              - (r42_teardown_resources.json.data | selectattr('vmid', 'equalto', 3103) | first).node == proxmox_node
+            fail_msg: VM type or node no longer matches this deployment; refusing removal
+        - name: Read VM ownership before any mutation
+          ansible.builtin.uri:
+            url: https://{{ proxmox_api_host }}/api2/json/nodes/{{ proxmox_node }}/qemu/3103/config
+            method: GET
+            headers:
+              Authorization: PVEAPIToken={{ proxmox_api_user }}!{{ proxmox_api_token_id }}={{ proxmox_api_token_secret }}
+            validate_certs: "{{ proxmox_api_validate_certs | default(true) }}"
+          register: r42_teardown_config
+          no_log: true
+          changed_when: false
+        - name: Verify exact deployment ownership
+          ansible.builtin.assert:
+            that:
+              - r42_deployment_id | default('') | length > 0
+              - r42_teardown_config.json.data.name | default('') == 'workstation-982df81e340f'
+              - r42_teardown_config.json.data.template | default(0) | int == 0
+              - ('range42-deployment:' ~ r42_deployment_id) in (r42_teardown_config.json.data.description | default('')).splitlines()
+            fail_msg: VM ownership does not match this deployment; refusing shutdown and removal
+        - name: Read current VM status
+          ansible.builtin.uri:
+            url: https://{{ proxmox_api_host }}/api2/json/nodes/{{ proxmox_node }}/qemu/3103/status/current
+            method: GET
+            headers:
+              Authorization: PVEAPIToken={{ proxmox_api_user }}!{{ proxmox_api_token_id }}={{ proxmox_api_token_secret }}
+            validate_certs: "{{ proxmox_api_validate_certs | default(true) }}"
+          register: r42_teardown_status
+          no_log: true
+          changed_when: false
+        - name: Request graceful VM shutdown
+          ansible.builtin.include_role:
+            name: range42-ansible_roles-proxmox_controller
+          vars:
+            proxmox_vm_action: vm_stop
+            vm_id: 3103
+            vm_name: workstation-982df81e340f
+          when: r42_teardown_status.json.data.status != 'stopped'
+        - name: Wait until VM shutdown completes
+          ansible.builtin.uri:
+            url: https://{{ proxmox_api_host }}/api2/json/nodes/{{ proxmox_node }}/qemu/3103/status/current
+            method: GET
+            headers:
+              Authorization: PVEAPIToken={{ proxmox_api_user }}!{{ proxmox_api_token_id }}={{ proxmox_api_token_secret }}
+            validate_certs: "{{ proxmox_api_validate_certs | default(true) }}"
+          register: r42_teardown_stopped
+          no_log: true
+          changed_when: false
+          until: r42_teardown_stopped.json.data.status | default('') == 'stopped'
+          retries: 60
+          delay: 2
+        - name: Remove stopped deployment VM
+          ansible.builtin.include_role:
+            name: range42-ansible_roles-proxmox_controller
+          vars:
+            proxmox_vm_action: vm_delete
+            vm_id: 3103
+            vm_name: workstation-982df81e340f
+        - name: Verify deletion started
+          ansible.builtin.assert:
+            that:
+              - (vm_delete.raw_data.data | default('')).startswith('UPID:')
+            fail_msg: VM removal did not return a task identifier
+        - name: Wait for the VM deletion task
+          ansible.builtin.uri:
+            url: https://{{ proxmox_api_host }}/api2/json/nodes/{{ vm_delete.raw_data.data.split(':')[1] }}/tasks/{{ vm_delete.raw_data.data }}/status
+            method: GET
+            headers:
+              Authorization: PVEAPIToken={{ proxmox_api_user }}!{{ proxmox_api_token_id }}={{ proxmox_api_token_secret }}
+            validate_certs: "{{ proxmox_api_validate_certs | default(true) }}"
+          register: r42_teardown_deleted
+          no_log: true
+          changed_when: false
+          until: r42_teardown_deleted.json.data.status | default('') == 'stopped'
+          retries: 60
+          delay: 2
+        - name: Verify VM deletion succeeded
+          ansible.builtin.assert:
+            that:
+              - r42_teardown_deleted.json.data.exitstatus | default('') == 'OK'
+            fail_msg: VM removal task failed; inspect its Proxmox task log before retrying

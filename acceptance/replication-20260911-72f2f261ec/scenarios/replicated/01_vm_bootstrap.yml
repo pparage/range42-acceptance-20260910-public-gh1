@@ -1,0 +1,39 @@
+- ansible.builtin.import_playbook: "{{ lookup('env', 'RANGE42_BUNDLE_DIR') }}/proxmox/vm.bootstrap/main.yml"
+  vars:
+    global_vm_ssh_name: workstation-8d4b18f26b61
+    global_vm_name: workstation-8d4b18f26b61
+    global_vm_id: 3101
+    global_vm_description: range42-deployment:{{ r42_deployment_id }}
+    global_vm_tag_name: replicated
+    global_vm_ci_ip: 10.42.10.11
+    global_template_vm_id: 9901
+    global_vm_net_virtio_bridge: blue1
+    global_vm_ci_ip_gw: 10.42.10.1
+    global_vm_ci_netmask: "24"
+    default_admin_vm_ci_user: alice
+- ansible.builtin.import_playbook: "{{ lookup('env', 'RANGE42_BUNDLE_DIR') }}/proxmox/vm.bootstrap/main.yml"
+  vars:
+    global_vm_ssh_name: workstation-f41ec66e19c3
+    global_vm_name: workstation-f41ec66e19c3
+    global_vm_id: 3102
+    global_vm_description: range42-deployment:{{ r42_deployment_id }}
+    global_vm_tag_name: replicated
+    global_vm_ci_ip: 10.42.10.12
+    global_template_vm_id: 9901
+    global_vm_net_virtio_bridge: blue1
+    global_vm_ci_ip_gw: 10.42.10.1
+    global_vm_ci_netmask: "24"
+    default_admin_vm_ci_user: alice
+- ansible.builtin.import_playbook: "{{ lookup('env', 'RANGE42_BUNDLE_DIR') }}/proxmox/vm.bootstrap/main.yml"
+  vars:
+    global_vm_ssh_name: workstation-982df81e340f
+    global_vm_name: workstation-982df81e340f
+    global_vm_id: 3103
+    global_vm_description: range42-deployment:{{ r42_deployment_id }}
+    global_vm_tag_name: replicated
+    global_vm_ci_ip: 10.42.11.11
+    global_template_vm_id: 9901
+    global_vm_net_virtio_bridge: red1
+    global_vm_ci_ip_gw: 10.42.11.1
+    global_vm_ci_netmask: "24"
+    default_admin_vm_ci_user: alice
