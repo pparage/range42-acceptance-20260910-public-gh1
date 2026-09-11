@@ -1,0 +1,16 @@
+- ansible.builtin.import_playbook: "{{ lookup('env', 'RANGE42_BUNDLE_DIR') }}/proxmox/vm.bootstrap/main.yml"
+  vars:
+    global_vm_ssh_name: saved-vm
+    global_vm_name: saved-vm
+    global_vm_id: 3101
+    global_vm_description: range42-deployment:{{ r42_deployment_id }}
+    global_vm_tag_name: saved
+    global_vm_ci_ip: 10.42.7.10
+    global_template_vm_id: 9901
+    global_vm_net_virtio_bridge: saved1
+    global_vm_ci_ip_gw: 10.42.7.1
+    global_vm_ci_netmask: "24"
+    default_admin_vm_ci_user: alice
+    global_vm_extra_config:
+      cores: 2
+      memory: 2048
